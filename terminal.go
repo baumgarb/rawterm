@@ -10,23 +10,23 @@ import (
 	cdc "github.com/containerd/console" // cdc = container d console
 )
 
-// InputMode represents the mode your cursor is in. Default is Overtype.
+// InputMode represents the mode in which users can enter an input. Default is FixedLength.
 type InputMode int
 
 const (
-	// Mode in which the cursor, when typing, overwrites any text that is present in the current location.
+	// Mode in which the final input has to have the same length as the provided default value.
 	//
 	// This mode ignores Backspace and Delete keys. You can only use arrow keys to navigate within the boundaries of the
 	// provided default value and overwrite individual characters. The entered value will therefore have the same
 	// length as the provided default value.
-	Overtype = iota
+	FixedLength = iota
 
-	// Mode where the cursor inserts a character at its current position, forcing all characters past it one position further.
+	// Mode in which the user are free to enter whatever they want.
 	//
 	// This mode accepts Backspace and Delete key presses and treats them as such. You can insert or remove characters at any
 	// position. The entered value can therefore have an arbitrary length which differs from the length of the provided
 	// default value.
-	Insert
+	Flexible
 )
 
 type terminal struct {
@@ -36,12 +36,19 @@ type terminal struct {
 	Mode InputMode
 }
 
-// Instantiates a new raw terminal with InputMode set to Overtype by default.
+// Instantiates a new raw terminal with InputMode set to FixedLength by default. You can provide specific descriptors via the
+// in and out parameters. Note that they have to be valid terminals / consoles, though. If you pass a regular file descriptor
+// we'll panic since there's no step further.
+//
+// Most of the time you'll invoke this function as follows:
+//
+//  term := rawterm.New(os.Stdin, os.Stdout)
+//  input, err := term.ReadString("Enter some six digit number", "123456")
 func New(in, out io.File) *terminal {
 	return &terminal{
 		in:   in,
 		out:  out,
-		Mode: Overtype,
+		Mode: FixedLength,
 	}
 }
 
@@ -78,7 +85,7 @@ func (c *terminal) ReadString(msg, defaultValue string) (string, error) {
 			c.out.WriteString("\r\n")
 			keepGoing = false
 		case 127:
-			if c.Mode == Overtype {
+			if c.Mode == FixedLength {
 				break
 			}
 			if cursorX <= 0 {
@@ -117,7 +124,7 @@ func (c *terminal) ReadString(msg, defaultValue string) (string, error) {
 					b4 := readOneByteFrom(c.in)
 					switch b4 {
 					case '~':
-						if c.Mode == Overtype {
+						if c.Mode == FixedLength {
 							break
 						}
 						if cursorX < 0 || cursorX == maxCursorX {
@@ -136,14 +143,14 @@ func (c *terminal) ReadString(msg, defaultValue string) (string, error) {
 				}
 			}
 		default:
-			if c.Mode == Overtype && cursorX >= maxCursorX {
+			if c.Mode == FixedLength && cursorX >= maxCursorX {
 				break
 			}
 			c.out.Write([]byte{b})
 			switch c.Mode {
-			case Overtype:
+			case FixedLength:
 				result[cursorX] = rune(b)
-			case Insert:
+			case Flexible:
 				result = insertCharAt(result, cursorX, rune(b))
 			}
 			cursorX++

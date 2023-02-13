@@ -4,21 +4,21 @@ import (
 	"testing"
 )
 
-func TestReadString_OvertypeMode_IgnoresKeysPressedAtTheEnd(t *testing.T) {
-	err := runReadString(Overtype, "abcdef\n", "123456", "enter something: 123456")
+func TestReadString_FixedLengthMode_IgnoresKeysPressedAtTheEnd(t *testing.T) {
+	err := runReadString(FixedLength, "abcdef\n", "123456", "enter something: 123456")
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func TestReadString_OvertypeMode_IgnoresBackspace(t *testing.T) {
-	err := runReadString(Overtype, backspaceTimes(3)+"\n", "123456", "enter something: 123456")
+func TestReadString_FixedLengthMode_IgnoresBackspace(t *testing.T) {
+	err := runReadString(FixedLength, backspaceTimes(3)+"\n", "123456", "enter something: 123456")
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-func TestReadString_OvertypeMode_HandlesCursorLeftCorrectly(t *testing.T) {
+func TestReadString_FixedLengthMode_HandlesCursorLeftCorrectly(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -30,14 +30,14 @@ func TestReadString_OvertypeMode_HandlesCursorLeftCorrectly(t *testing.T) {
 	}
 
 	for i, td := range tt {
-		err := runReadString(Overtype, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(FixedLength, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_OvertypeMode_IgnoresAllCursorRightAtTheEnd(t *testing.T) {
+func TestReadString_FixedLengthMode_IgnoresAllCursorRightAtTheEnd(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -49,14 +49,14 @@ func TestReadString_OvertypeMode_IgnoresAllCursorRightAtTheEnd(t *testing.T) {
 	}
 
 	for i, td := range tt {
-		err := runReadString(Overtype, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(FixedLength, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_OvertypeMode_HandlesCursorLeftAndRightCorrectly(t *testing.T) {
+func TestReadString_FixedLengthMode_HandlesCursorLeftAndRightCorrectly(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -73,14 +73,14 @@ func TestReadString_OvertypeMode_HandlesCursorLeftAndRightCorrectly(t *testing.T
 	}
 
 	for i, td := range tt {
-		err := runReadString(Overtype, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(FixedLength, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_InsertMode_HandlesCursorLeftCorrectly(t *testing.T) {
+func TestReadString_FlexibleMode_HandlesCursorLeftCorrectly(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -92,14 +92,14 @@ func TestReadString_InsertMode_HandlesCursorLeftCorrectly(t *testing.T) {
 	}
 
 	for i, td := range tt {
-		err := runReadString(Insert, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(Flexible, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_InsertMode_HandlesCursorLeftAndRightCorrectly(t *testing.T) {
+func TestReadString_FlexibleMode_HandlesCursorLeftAndRightCorrectly(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -116,14 +116,14 @@ func TestReadString_InsertMode_HandlesCursorLeftAndRightCorrectly(t *testing.T) 
 	}
 
 	for i, td := range tt {
-		err := runReadString(Insert, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(Flexible, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_InsertMode_IgnoresAllCursorRightAtTheEnd(t *testing.T) {
+func TestReadString_FlexibleMode_IgnoresAllCursorRightAtTheEnd(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -135,14 +135,14 @@ func TestReadString_InsertMode_IgnoresAllCursorRightAtTheEnd(t *testing.T) {
 	}
 
 	for i, td := range tt {
-		err := runReadString(Insert, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(Flexible, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_InsertMode_HandlesBackspaceCorrectly(t *testing.T) {
+func TestReadString_FlexibleMode_HandlesBackspaceCorrectly(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -160,14 +160,14 @@ func TestReadString_InsertMode_HandlesBackspaceCorrectly(t *testing.T) {
 	}
 
 	for i, td := range tt {
-		err := runReadString(Insert, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(Flexible, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
 	}
 }
 
-func TestReadString_InsertMode_HandlesDeleteCorrectly(t *testing.T) {
+func TestReadString_FlexibleMode_HandlesDeleteCorrectly(t *testing.T) {
 	type test struct {
 		input, expectedResult, expectedOutput string
 	}
@@ -183,7 +183,7 @@ func TestReadString_InsertMode_HandlesDeleteCorrectly(t *testing.T) {
 	}
 
 	for i, td := range tt {
-		err := runReadString(Insert, td.input, td.expectedResult, td.expectedOutput)
+		err := runReadString(Flexible, td.input, td.expectedResult, td.expectedOutput)
 		if err != nil {
 			t.Errorf("#%v: %v", i, err)
 		}
